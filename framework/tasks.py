@@ -9,7 +9,7 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
+# distributed under the License is distributed on an "AS IS" BASIS,<
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -20,7 +20,7 @@ from datetime import datetime
 
 from mesos.interface import mesos_pb2
 
-from config import config, USE_CACHED_INSTALLER
+from config import config, USE_CACHED_EXECUTOR
 
 _log = logging.getLogger(__name__)
 
@@ -232,14 +232,14 @@ class TaskInstallDockerClusterStore(Task):
 
     def as_new_mesos_task(self, agent_id):
         task = self.new_default_task(agent_id)
-        task.command.value = "./installer docker"
+        task.command.value = "./executor docker"
         task.command.user = "root"
 
-        # Download the installer binary
+        # Download the executor binary
         uri = task.command.uris.add()
-        uri.value = config.installer_url
+        uri.value = config.executor_url
         uri.executable = True
-        uri.cache = USE_CACHED_INSTALLER
+        uri.cache = USE_CACHED_EXECUTOR
         return task
 
     @classmethod
@@ -266,7 +266,7 @@ class TaskInstallNetmodules(Task):
 
     def as_new_mesos_task(self, agent_id):
         task = self.new_default_task(agent_id)
-        task.command.value = "./installer netmodules"
+        task.command.value = "./executor netmodules"
         task.command.user = "root"
 
         # Download the Netmodules .so
@@ -282,11 +282,11 @@ class TaskInstallNetmodules(Task):
         uri.executable = True
         uri.cache = True
 
-        # Download the installer binary
+        # Download the executor binary
         uri = task.command.uris.add()
-        uri.value = config.installer_url
+        uri.value = config.executor_url
         uri.executable = True
-        uri.cache = USE_CACHED_INSTALLER
+        uri.cache = USE_CACHED_EXECUTOR
 
         return task
 
@@ -313,7 +313,7 @@ class TaskRunCalicoNode(Task):
     description = "Calico: daemon"
 
     def as_new_mesos_task(self, agent_id):
-        cmd_ip = "$(./installer ip %s)" % config.zk_hosts
+        cmd_ip = "$(./executor ip %s)" % config.zk_hosts
         task = self.new_default_task(agent_id)
         task.command.value = "./calicoctl node --detach=false --ip=" + cmd_ip
         task.command.user = "root"
@@ -325,11 +325,11 @@ class TaskRunCalicoNode(Task):
         uri.cache = True
         uri.extract = False
 
-        # Download the installer binary
+        # Download the executor binary
         uri = task.command.uris.add()
-        uri.value = config.installer_url
+        uri.value = config.executor_url
         uri.executable = True
-        uri.cache = USE_CACHED_INSTALLER
+        uri.cache = USE_CACHED_EXECUTOR
 
         return task
 

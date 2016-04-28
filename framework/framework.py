@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""calico-dcos-installer-scheduler
+"""calico-dcos-executor-scheduler
 
 Install calico in a Mesos cluster.
 
@@ -55,7 +55,7 @@ class Agent(object):
     def __init__(self, scheduler, agent_id):
         self.scheduler = scheduler
         """
-        The Calico installer scheduler.
+        The Calico executor scheduler.
         """
 
         self.agent_id = agent_id
@@ -349,7 +349,7 @@ class Agent(object):
         return restarting
 
 
-class CalicoInstallerScheduler(mesos.interface.Scheduler):
+class CalicoExecutorScheduler(mesos.interface.Scheduler):
     def __init__(self):
         self.agents = {}
 
@@ -468,7 +468,7 @@ def launch_framework():
 
 
     _log.info("Launching Calico Mesos scheduler")
-    scheduler = CalicoInstallerScheduler()
+    scheduler = CalicoExecutorScheduler()
     driver = mesos.native.MesosSchedulerDriver(scheduler,
                                                framework,
                                                config.mesos_master)
