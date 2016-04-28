@@ -1,6 +1,6 @@
 .PHONY: netmodules
 
-CALICO_MESOS_FILES=./installer/installer.py
+CALICO_MESOS_FILES=./executor/executor.py
 
 default:
 	docker build -t calico/calico-dcos -f Dockerfile.framework .
@@ -22,7 +22,7 @@ run:
     -e CALICO_MEM_LIMIT_NODE=1024 \
     -e CALICO_CPU_LIMIT_LIBNETWORK=0.1 \
     -e CALICO_MEM_LIMIT_LIBNETWORK=1024 \
-    -e CALICO_INSTALLER_URL=https://transfer.sh/YdeMF/installer \
+    -e CALICO_EXECUTOR_URL=https://transfer.sh/YdeMF/executor \
     -e CALICO_MESOS_PLUGIN=https://github.com/projectcalico/calico-mesos/releases/download/v0.1.5/calico_mesos \
     -e ETCD_SRV=etcd.mesos \
     -e ETCD_BINARY_URL=https://github.com/coreos/etcd/releases/download/v2.3.1/etcd-v2.3.1-linux-amd64.tar.gz \
@@ -35,17 +35,17 @@ run:
 push:
 	docker push calico/calico-dcos
 
-installer: dist/installer
-dist/installer: $(CALICO_MESOS_FILES)
+executor: dist/executor
+dist/executor: $(CALICO_MESOS_FILES)
 	mkdir -p -m 777 dist/
 	# Build the mesos plugin
-	docker build -t calico/dcos-builder -f Dockerfile.installer .
+	docker build -t calico/dcos-builder -f Dockerfile.executor .
 	docker run --rm \
-         -v `pwd`/installer/:/code/installer \
+         -v `pwd`/executor/:/code/executor \
          -v `pwd`/dist/:/code/dist \
 	     calico/dcos-builder \
-	     pyinstaller installer/installer.py -ayF
-	curl --upload-file dist/installer https://transfer.sh/installer
+	     pyinstaller executor/executor.py -ayF
+	curl --upload-file dist/executor https://transfer.sh/executor
 
 netmodules:
 	tar -czf netmodules.tar.gz netmodules/*

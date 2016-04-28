@@ -39,7 +39,7 @@ class Config(object):
         self.cpu_limit_libnetwork = float(self.getenv("CALICO_CPU_LIMIT_LIBNETWORK"))
         self.mem_limit_libnetwork = int(self.getenv("CALICO_MEM_LIMIT_LIBNETWORK"))
 
-        self.installer_url = self.getenv("CALICO_INSTALLER_URL")
+        self.executor_url = self.getenv("CALICO_EXECUTOR_URL")
         self.calico_mesos_url = self.getenv("CALICO_MESOS_PLUGIN")
         self.netmodules_url = self.getenv("NETMODULES_URL")
 
@@ -85,8 +85,8 @@ config = Config()
 
 
 
-# Development changes to the installer won't be picked up unless
+# Development changes to the executor won't be picked up unless
 # the binary uses a new name, or cache is disabled.
-# Set this flag to False if you are updating the installer
-# at CALICO_INSTALLER_URL without changing its name.
-USE_CACHED_INSTALLER = False
+# Set this flag to False if you are updating the executor
+# at CALICO_EXECUTOR_URL without changing its name.
+USE_CACHED_EXECUTOR = False
