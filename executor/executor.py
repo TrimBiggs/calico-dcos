@@ -22,8 +22,8 @@ import subprocess
 import sys
 import threading
 import mesos.interface
-from mesos.interface import mesos_pb2
 import mesos.native
+from mesos.interface import mesos_pb2
 
 from utils import (run_command, wait_for_process, store_config, load_config,
                    move_file_if_missing, store_property_file,
