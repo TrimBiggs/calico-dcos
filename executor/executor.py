@@ -33,9 +33,9 @@ from utils import (run_command, wait_for_process, store_config, load_config,
 _log = logging.getLogger(__name__)
 
 # Calico installation config files
-INSTALLER_CONFIG_DIR = "/etc/calico/executor"
-NETMODULES_INSTALL_CONFIG = INSTALLER_CONFIG_DIR + "/netmodules"
-DOCKER_INSTALL_CONFIG = INSTALLER_CONFIG_DIR + "/docker"
+EXECUTOR_CONFIG_DIR = "/etc/calico/executor"
+NETMODULES_INSTALL_CONFIG = EXECUTOR_CONFIG_DIR + "/netmodules"
+DOCKER_INSTALL_CONFIG = EXECUTOR_CONFIG_DIR + "/docker"
 
 # Docker information for a standard Docker install.
 DOCKER_DAEMON_EXE_RE = re.compile(r"(.*/)?docker")
