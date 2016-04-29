@@ -81,8 +81,9 @@ def initialize_logging():
 
 
 class ExecutorTask(object):
-    def __init__(self, task):
-        self.id = task.task_id.value
+    def __init__(self, task, public_slave):
+        self.id = task.task_id.value,
+        self.public_slave = public_slave
         self.labels = {label.key: label.value for label in task.labels.labels}
         for resource in task.resources:
             if resource.name == "ports":
@@ -295,7 +296,10 @@ class ExecutorNetmodulesTask(ExecutorTask):
             # the task to fail (but sys.exit(1) to make sure).  The task will be
             # relaunched, and next time will miss this branch and succeed.
             _log.warning("Restarting agent process: %s", agent_process)
-            restart_service("dcos-mesos-slave", agent_process)
+            if self.public_slave:
+                restart_service("dcos-mesos-slave-public", agent_process)
+            else:
+                restart_service("dcos-mesos-slave", agent_process)
             sys.exit(1)
 
         _log.debug("Agent was restarted and is stable since config was updated")
@@ -445,9 +449,9 @@ class ExecutorGetIpTask(ExecutorTask):
 
 
 class Executor(mesos.interface.Executor):
-    def __init__(self, task_executor):
+    def __init__(self, task_executor, public_slave):
         self.task_executor = task_executor
-        super(Executor, self).__init__()
+        super(Executor, self).__init__(public_slave)
 
     def launchTask(self, driver, task):
         # Create a thread to run the task
@@ -468,6 +472,7 @@ if __name__ == "__main__":
     print "Starting executor for %s" % sys.argv[1]
 
     initialize_logging()
+    public_slave = "--public" in sys.argv
     task_type = sys.argv[1]
     if task_type == 'netmodules':
         task_executor = ExecutorNetmodulesTask
@@ -479,5 +484,5 @@ if __name__ == "__main__":
         print "Unexpected task type: %s" % task_type
         sys.exit(1)
 
-    driver = mesos.native.MesosExecutorDriver(Executor(task_executor))
+    driver = mesos.native.MesosExecutorDriver(Executor(task_executor, public_slave))
     sys.exit(0 if driver.run() == mesos_pb2.DRIVER_STOPPED else 1)
