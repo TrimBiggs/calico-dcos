@@ -3,7 +3,7 @@
 CALICO_MESOS_FILES=./executor/executor.py
 
 default:
-	docker build -t calico/calico-dcos -f Dockerfile.framework .
+	docker build -t timothydbriggs/calico-dcos -f Dockerfile.framework .
 
 run: 
 	docker run -it --net=host \
@@ -33,7 +33,7 @@ run:
     calico/calico-dcos
 
 push:
-	docker push calico/calico-dcos
+	docker push timothydbriggs/calico-dcos:installer
 
 executor: dist/executor
 dist/executor: $(CALICO_MESOS_FILES)
@@ -46,6 +46,10 @@ dist/executor: $(CALICO_MESOS_FILES)
 	     calico/dcos-builder \
 	     pyinstaller executor/executor.py -ayF
 	curl --upload-file dist/executor https://transfer.sh/executor
+
+ec: executor-container
+executor-container:
+	docker build -t timothydbriggs/executor -f Dockerfile.executor .
 
 netmodules:
 	tar -czf netmodules.tar.gz netmodules/*

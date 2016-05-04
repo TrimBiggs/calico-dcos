@@ -9,7 +9,7 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,<
+# distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -89,6 +89,14 @@ class Task(object):
         mem.type = mesos_pb2.Value.SCALAR
         mem.scalar.value = self.mem
         mem.role = self.role
+
+        executor = mesos_pb2.ExecutorInfo()
+        executor.executor_id.value = "execute Task %s" % self.task_id
+        executor.command.value = " %s" % self.executor_script
+        executor.name = "Executor for Task %s" % self.task_id
+        executor.container.type = mesos_pb2.ContainerInfo.DOCKER
+        task.executor.MergeFrom(executor)
+        self.executor_id = executor.executor_id.value
 
         return task
 
@@ -198,6 +206,7 @@ class TaskRunEtcdProxy(Task):
     cpus = config.cpu_limit_etcd_proxy
     mem = config.mem_limit_etcd_proxy
     description = "Calico: etcd proxy"
+    executor_script = "docker exec -ti executor /executor.py"
 
     def as_new_mesos_task(self, agent_id):
         etcd_download = config.etcd_binary_url.rsplit("/", 1)[-1]
@@ -207,7 +216,7 @@ class TaskRunEtcdProxy(Task):
             etcd_img = "./%s" % etcd_download
 
         task = self.new_default_task(agent_id)
-        task.container.type = mesos_pb2.ContainerInfo.MESOS
+        task.container.type = mesos_pb2.ContainerInfo.DOCKER
         task.command.value = etcd_img + \
                              " --proxy=on" + \
                              " --discovery-srv=" + config.etcd_discovery
@@ -270,7 +279,7 @@ class TaskInstallNetmodules(Task):
 
     def as_new_mesos_task(self, agent_id):
         task = self.new_default_task(agent_id)
-        task.command.value = "./executor netmodules"
+        task.command.value = "netmodules"
         if self.role == "slave_public":
             task.command.value += " --public"
         task.command.user = "root"
@@ -321,7 +330,7 @@ class TaskRunCalicoNode(Task):
     def as_new_mesos_task(self, agent_id):
         cmd_ip = "$(./executor ip %s)" % config.zk_hosts
         task = self.new_default_task(agent_id)
-        task.command.value = "./calicoctl node --detach=false --ip=" + cmd_ip
+        task.command.value = "node --ip=" + cmd_ip
         task.command.user = "root"
 
         # Add a URI for downloading the calicoctl binary
